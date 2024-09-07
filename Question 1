@@ -1,0 +1,20 @@
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+# Define a simple model
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+
+# Define the signal handler
+@receiver(post_save, sender=MyModel)
+def my_signal_handler(sender, instance, **kwargs):
+    print(f"Signal received for MyModel instance: {instance.name}")
+    
+# Creating an instance of MyModel
+def create_my_model_instance():
+    print("Creating instance...")
+    obj = MyModel.objects.create(name="Test")
+    print("Instance created!")
+
+
