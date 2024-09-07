@@ -1,0 +1,33 @@
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db import transaction
+
+# Define a simple model
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+
+# Define the signal handler
+@receiver(post_save, sender=MyModel)
+def my_signal_handler(sender, instance, **kwargs):
+    print(f"Signal received for: {instance.name}")
+    # Modifying the instance within the signal handler
+    instance.name = "Modified by Signal"
+    instance.save()  # This save is within the same transaction
+
+# Create an instance of MyModel and demonstrate transaction behavior
+def create_my_model_instance():
+    # Start a transaction
+    with transaction.atomic():
+        print("Creating instance...")
+        obj = MyModel.objects.create(name="Original")
+        print(f"Name before save: {obj.name}")
+        
+        # Modify the object in the same transaction
+        obj.name = "Updated in Transaction"
+        obj.save()
+
+        print(f"Name after save: {obj.name}")
+
+# Run the function to create an instance
+create_my_model_instance()
