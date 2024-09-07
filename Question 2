@@ -1,0 +1,27 @@
+from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+import threading
+import time
+
+# Define a simple model
+class MyModel(models.Model):
+    name = models.CharField(max_length=100)
+
+# Define the signal handler
+@receiver(post_save, sender=MyModel, dispatch_uid="my_signal_handler")
+def my_signal_handler(sender, instance, **kwargs):
+    print(f"Signal received for: {instance.name}")
+    print(f"Signal handler thread ID: {threading.get_ident()}")
+    time.sleep(2)  # Simulating a delay of 2 seconds
+    print("Signal handler finished")
+
+# Create an instance of MyModel
+def create_my_model_instance():
+    print("Creating instance...")
+    obj = MyModel.objects.create(name="Test")
+    print("Object created!")
+    print(f"Main thread ID: {threading.get_ident()}")
+
+# Run the function to create an instance
+create_my_model_instance()
